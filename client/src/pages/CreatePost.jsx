@@ -9,11 +9,34 @@ const CreatePost = () => {
   const [form, setForm] = useState({ name: "", prompt: "", photo: "" });
   const [generateImg, setGenerateImg] = useState(false);
   const [loading, setLoading] = useState(false);
-  const generateImage = () => {};
+  const generateImage = async () => {
+    if (form.prompt) {
+      try {
+        setGenerateImg(true);
+        const response = await fetch("http://localhost:7080/api/v1/dalle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: form.prompt }),
+        });
+        const data = await response.json();
+        setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` });
+      } catch (error) {
+        alert(error);
+      } finally {
+        setGenerateImg(false);
+      }
+    } else {
+      alert("Please enter a prompt");
+    }
+  };
   const handleSubmit = () => {};
-  const handleChange = (e) => {setForm({...form,[e.target.name]: e.target.value})};
-  const handleSurpriseMe = (e) => {const randomPrompt=getRandomPrompt(form.prompt)
-setForm({...form,prompt:randomPrompt})};
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+  const handleSurpriseMe = () => {
+    const randomPrompt = getRandomPrompt(form.prompt);
+    setForm({ ...form, prompt: randomPrompt });
+  };
   return (
     <section className="max-w-7xl mx-auto">
       <div>
@@ -74,12 +97,16 @@ setForm({...form,prompt:randomPrompt})};
           </button>
         </div>
         <div className="mt-10">
-            <p className="mt-2 text-[666e75] text-[14px]">Once you have created the image you want, you can share it with others in the community</p>
-            <button
+          <p className="mt-2 text-[666e75] text-[14px]">
+            Once you have created the image you want, you can share it with
+            others in the community
+          </p>
+          <button
             type="submit"
-            className="mt-3 text-white bg-[rgb(100,105,255)] font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center">
-{loading? 'Sharing...': 'Share with the community' }
-            </button>
+            className="mt-3 text-white bg-[rgb(100,105,255)] font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+          >
+            {loading ? "Sharing..." : "Share with the community"}
+          </button>
         </div>
       </form>
     </section>
